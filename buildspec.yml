@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+  pre_build:
+    commands:
+      - echo Doing mvn test...
+      - mvn test
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 608739318514.dkr.ecr.ap-southeast-1.amazonaws.com
+  build:
+    commands:
+      - echo Build started on `date`
+      - mvn package
+      - docker build -t eureka .
+      - docker tag wordpress0906:latest 608739318514.dkr.ecr.ap-southeast-1.amazonaws.com/wordpress0906:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - docker push 608739318514.dkr.ecr.ap-southeast-1.amazonaws.com/wordpress0906:latest
+      - echo Writing image definitions file...
+      - printf '{"ImageURI":"608739318514.dkr.ecr.ap-southeast-1.amazonaws.com/wordpress0906:latest"}' > imageDetail.json
+artifacts:
+  files: 
+    - imageDetail.json
+    - taskdef.json
+    - appspec.yaml
