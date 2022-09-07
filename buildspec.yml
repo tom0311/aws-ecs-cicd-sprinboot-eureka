@@ -9,19 +9,19 @@ phases:
       - echo Doing mvn test...
       - mvn test
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 608739318514.dkr.ecr.ap-southeast-1.amazonaws.com
+      - aws ecr get-login-password --region <region-code> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region-code>.amazonaws.com
   build:
     commands:
       - echo Build started on `date`
       - mvn package
       - docker build -t eureka .
-      - docker tag wordpress0906:latest 608739318514.dkr.ecr.ap-southeast-1.amazonaws.com/wordpress0906:latest
+      - docker tag eureka:latest <account-id>.dkr.ecr.<region-code>.amazonaws.com/eureka:latest
   post_build:
     commands:
       - echo Build completed on `date`
-      - docker push 608739318514.dkr.ecr.ap-southeast-1.amazonaws.com/wordpress0906:latest
+      - docker push <account-id>.dkr.ecr.<region-code>.amazonaws.com/eureka:latest
       - echo Writing image definitions file...
-      - printf '{"ImageURI":"608739318514.dkr.ecr.ap-southeast-1.amazonaws.com/wordpress0906:latest"}' > imageDetail.json
+      - printf '{"ImageURI":"<account-id>.dkr.ecr.<region-code>.amazonaws.com/eureka:latest"}' > imageDetail.json
 artifacts:
   files: 
     - imageDetail.json
